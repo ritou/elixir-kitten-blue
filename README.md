@@ -1,6 +1,10 @@
 # KittenBlue
 
-**TODO: Add description**
+`KittenBlue` is a JOSE wrapper library that makes JWT implementation simpler.
+
+* `KittenBlue.JWK` : Structure containing `kid`, `alg`, `JOSE.JWK` and handling functions
+* `KittenBlue.JWS` : `JOSE.JWS` wrappter functions using `KittenBlue.JWK`
+* `KittenBlue.JWiE` : (Future Work) `JOSE.JWE` wrappter functions using `KittenBlue.JWK`
 
 ## Installation
 

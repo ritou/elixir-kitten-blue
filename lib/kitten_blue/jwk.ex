@@ -8,7 +8,7 @@ defmodule KittenBlue.JWK do
     :alg,
     :key
   ]
-  
+
   @type t :: %__MODULE__{kid: String.t, alg: String.t, key: JOSE.JWK.t}
 
   @doc """

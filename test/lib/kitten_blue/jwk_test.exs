@@ -31,7 +31,7 @@ defmodule KittenBlue.JWKTest do
     assert kb_jwk.key == @key
   end
 
-  test "list_to_public_jwk_sets" do
+  test "list_to_public_jwk_sets and public_jwk_sets_to_list" do
     kb_jwk = [
       kid: @kid,
       alg: @alg,
@@ -56,8 +56,18 @@ defmodule KittenBlue.JWKTest do
       assert !jwk["dq"]
       assert !jwk["qi"]
     end
+    public_jwk_list = JWK.public_jwk_sets_to_list(public_jwk_sets)
+    assert length(public_jwk_list) == 1
+    [public_jwk] = public_jwk_list
+    assert public_jwk.kid == @kid
+    assert public_jwk.alg == @alg
+    assert public_jwk.key
 
     jwk_list = [nil, kb_jwk]
     assert public_jwk_sets == JWK.list_to_public_jwk_sets(jwk_list)
+
+    assert [] == JWK.public_jwk_sets_to_list(%{})
+    assert [] == JWK.public_jwk_sets_to_list(%{"keys" => ["invalid"]})
+    # TODO : invalid JWK Sets
   end
 end

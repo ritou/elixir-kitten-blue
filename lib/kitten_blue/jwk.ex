@@ -67,11 +67,15 @@ defmodule KittenBlue.JWK do
   end
 
   defp from_public_key_map(jwk_map) when is_map(jwk_map) do
-    with alg when alg != nil <- jwk_map["alg"],
-         kid when kid != nil <- jwk_map["kid"],
-         key = %JOSE.JWK{} <- jwk_map |> JOSE.JWK.from_map() do
-      new([kid: kid, alg: alg, key: key])
-    else
+    try do
+      with alg when alg != nil <- jwk_map["alg"],
+           kid when kid != nil <- jwk_map["kid"],
+           key = %JOSE.JWK{} <- jwk_map |> JOSE.JWK.from_map() do
+        new([kid: kid, alg: alg, key: key])
+      else
+        _ -> nil
+      end
+    rescue
       _ -> nil
     end
   end

@@ -5,7 +5,7 @@ defmodule KittenBlue.Mixfile do
     [
       app: :kitten_blue,
       version: "0.1.1",
-      elixir: "~> 1.5",
+      elixir: "~> 1.3",
       start_permanent: Mix.env == :prod,
       description: "KittenBlue is a JOSE wrapper library that makes JWT implementation simpler for Elixir.",
       package: [

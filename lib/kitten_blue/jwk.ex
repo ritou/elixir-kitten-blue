@@ -12,7 +12,11 @@ defmodule KittenBlue.JWK do
   @type t :: %__MODULE__{kid: String.t, alg: String.t, key: JOSE.JWK.t}
 
   @doc """
-  ```
+  ```Elixir
+  kid = "sample_201804"
+  alg = "RS256"
+  key = JOSE.JWK.from_pem_file("rsa-2048.pem") 
+
   kb_jwk = KittenBlue.JWK.new([kid: kid, alg: alg, key: key])
   ```
   """
@@ -24,20 +28,29 @@ defmodule KittenBlue.JWK do
   @doc """
   Convert `KittenBlue.JWK` list to `JSON Web Key Sets` format public keys.
 
-  ```
-  public_jwk_sets = KittenBlue.JWK.list_to_public_jwk_sets(jwk_list)
+  ```Elixir
+  kb_jwk_list = [kb_jwk]
+  public_jwk_sets = KittenBlue.JWK.list_to_public_jwk_sets(kb_jwk_list)
   ```
   """
   @spec list_to_public_jwk_sets(jwk_list :: List.t) :: map
   def list_to_public_jwk_sets(jwk_list) when is_list(jwk_list) do
     %{"keys" =>
       jwk_list
-      |> Enum.map(fn(jwk) -> to_public_key_map(jwk) end)
+      |> Enum.map(fn(jwk) -> to_public_jwk_set(jwk) end)
       |> Enum.filter(& !is_nil(&1))
     }
   end
 
-  defp to_public_key_map(jwk = %__MODULE__{}) do
+  @doc """
+  Convert `KittenBlue.JWK` to `JSON Web Key Sets` format public key.
+
+  ```Elixir
+  public_jwk_set = KittenBlue.JWK.to_public_jwk_set(kb_jwk)
+  ```
+  """
+  @spec to_public_jwk_set(jwk :: t) :: map | nil
+  def to_public_jwk_set(jwk = %__MODULE__{}) do
     jwk.key
     |> JOSE.JWK.to_public()
     |> JOSE.JWK.to_map()
@@ -45,7 +58,7 @@ defmodule KittenBlue.JWK do
     |> Map.put("alg", jwk.alg)
     |> Map.put("kid", jwk.kid)
   end
-  defp to_public_key_map(_) do
+  def to_public_jwk_set(_) do
     nil
   end
 
@@ -53,7 +66,7 @@ defmodule KittenBlue.JWK do
   Convert `JSON Web Key Sets` format public keys to `KittenBlue.JWK`.
 
   ```
-  jwk_list = KittenBlue.JWK.public_jwk_sets_to_list(public_jwk_sets)
+  kb_jwk_list = KittenBlue.JWK.public_jwk_sets_to_list(public_jwk_sets)
   ```
   """
   @spec public_jwk_sets_to_list(public_json_web_key_sets :: map) :: List.t

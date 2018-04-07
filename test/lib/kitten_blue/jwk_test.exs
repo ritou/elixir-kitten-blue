@@ -30,6 +30,14 @@ defmodule KittenBlue.JWKTest do
     assert kb_jwk.kid == @kid
     assert kb_jwk.alg == @alg
     assert kb_jwk.key == @key
+
+    assert kb_jwk == %{
+      kid: @kid,
+      alg: @alg,
+      key: @key
+    } |> JWK.new()
+
+    assert kb_jwk == [@kid, @alg, @key] |> JWK.new()
   end
 
   test "list_to_public_jwk_sets and public_jwk_sets_to_list" do

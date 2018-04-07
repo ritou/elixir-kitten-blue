@@ -20,9 +20,37 @@ defmodule KittenBlue.JWK do
   kb_jwk = KittenBlue.JWK.new([kid: kid, alg: alg, key: key])
   ```
   """
-  @spec new(opts :: Keywords.t()) :: t
-  def new(opts) do
-    struct(__MODULE__, Map.new(opts))
+  @spec new(params :: Keywords.t()) :: t
+  def new(params = [kid: _, alg: _, key: _]) do
+    struct(__MODULE__, Map.new(params))
+  end
+
+  @doc """
+  ```Elixir
+  kid = "sample_201804"
+  alg = "RS256"
+  key = JOSE.JWK.from_pem_file("rsa-2048.pem") 
+
+  kb_jwk = KittenBlue.JWK.new([kid, alg, key])
+  ```
+  """
+  @spec new(params :: List.t()) :: t
+  def new([kid, alg, key]) do
+    struct(__MODULE__, %{kid: kid, alg: alg, key: key})
+  end
+
+  @doc """
+  ```Elixir
+  kid = "sample_201804"
+  alg = "RS256"
+  key = JOSE.JWK.from_pem_file("rsa-2048.pem") 
+
+  kb_jwk = KittenBlue.JWK.new(%{kid: kid, alg: alg, key: key})
+  ```
+  """
+  @spec new(params :: Map.t()) :: t
+  def new(params = %{kid: _, alg: _, key: _}) do
+    struct(__MODULE__, params)
   end
 
   @doc """
@@ -107,4 +135,5 @@ defmodule KittenBlue.JWK do
   def from_public_jwk_set(_) do
     nil
   end
+
 end

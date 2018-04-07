@@ -63,7 +63,7 @@ defmodule KittenBlue.JWK do
   end
 
   @doc """
-  Convert `JSON Web Key Sets` format public keys to `KittenBlue.JWK`.
+  Convert `JSON Web Key Sets` format public keys to `KittenBlue.JWK` list.
 
   ```
   kb_jwk_list = KittenBlue.JWK.public_jwk_sets_to_list(public_jwk_sets)
@@ -72,14 +72,22 @@ defmodule KittenBlue.JWK do
   @spec public_jwk_sets_to_list(public_json_web_key_sets :: map) :: List.t
   def public_jwk_sets_to_list(_ = %{"keys" => public_jwk_sets}) when is_list(public_jwk_sets) do
     public_jwk_sets
-    |> Enum.map(fn(public_jwk_set) -> from_public_key_map(public_jwk_set) end)
+    |> Enum.map(fn(public_jwk_set) -> from_public_jwk_set(public_jwk_set) end)
     |> Enum.filter(& !is_nil(&1))
   end
   def public_jwk_sets_to_list(_) do
     []
   end
 
-  defp from_public_key_map(jwk_map) when is_map(jwk_map) do
+  @doc """
+  Convert `JSON Web Key Sets` format public key to `KittenBlue.JWK`.
+
+  ```
+  kb_jwk = KittenBlue.JWK.from_public_jwk_set(public_jwk_set)
+  ```
+  """
+  @spec from_public_jwk_set(public_json_web_key_set :: map) :: t | nil
+  def from_public_jwk_set(jwk_map) when is_map(jwk_map) do
     try do
       with alg when alg != nil <- jwk_map["alg"],
            kid when kid != nil <- jwk_map["kid"],
@@ -92,7 +100,8 @@ defmodule KittenBlue.JWK do
       _ -> nil
     end
   end
-  defp from_public_key_map(_) do
+  def from_public_jwk_set(_) do
     nil
   end
+
 end

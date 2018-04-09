@@ -125,27 +125,27 @@ defmodule KittenBlue.JWK do
   end
 
   @doc """
-  Convert `KittenBlue.JWK` List to conpact storable format for configration.
+  Convert `KittenBlue.JWK` List to compact storable format for configration.
 
   ```
   kb_jwk_list = [kb_jwk]
   kb_jwk_list_config = KittenBlue.JWK.list_to_compact(kb_jwk_list)
   ```
   """
-  @spec list_to_compact(jwk_list :: List.t()) :: Keywords.t()
+  @spec list_to_compact(jwk_list :: List.t()) :: List.t()
   def list_to_compact(jwk_list) do
     jwk_list
     |> Enum.map(fn jwk -> to_compact(jwk) end)
   end
 
   @doc """
-  Convert `KittenBlue.JWK` to conpact storable format for configration.
+  Convert `KittenBlue.JWK` to compact storable format for configration.
 
   ```
   kb_jwk_config = KittenBlue.JWK.to_compact(kb_jwk)
   ```
   """
-  @spec to_compact(jwk :: t()) :: Keywords.t()
+  @spec to_compact(jwk :: t()) :: List.t()
   def to_compact(jwk) do
     case jwk.alg do
       alg when alg in ["HS256", "HS384", "HS512"] ->
@@ -153,8 +153,40 @@ defmodule KittenBlue.JWK do
       alg when alg in ["RS256", "RS384", "RS512"] ->
         [jwk.kid, jwk.alg, jwk.key |> JOSE.JWK.to_pem() |> elem(1)]
       _ ->
-        # use jwk set
         [jwk.kid, jwk.alg, jwk.key |> JOSE.JWK.to_map() |> elem(1)]
+    end
+  end
+
+  @doc """
+  Convert compact storable format to `KittenBlue.JWK`.
+
+  ```
+  kb_jwk_list = KittenBlue.JWK.compact_to_list(kb_jwk_list_config)
+  ```
+  """
+  @spec compact_to_list(jwk_compact_list :: list()) :: t()
+  def compact_to_list(jwk_compact_list) when is_list(jwk_compact_list) do
+    jwk_compact_list
+    |> Enum.map(fn jwk_compact -> from_compact(jwk_compact) end)
+    |> Enum.filter(&(!is_nil(&1)))
+  end
+
+  @doc """
+  Convert compact storable format to `KittenBlue.JWK`.
+
+  ```
+  kb_jwk = KittenBlue.JWK.from_compact(kb_jwk_config)
+  ```
+  """
+  @spec from_compact(jwk_compact :: list()) :: t()
+  def from_compact(_jwk_compact = [kid, alg, key]) do
+    cond do
+      alg in ["HS256", "HS384", "HS512"] ->
+        [kid, alg, key |> Base.decode64!(padding: false) |> JOSE.JWK.from_oct()] |> new()
+      alg in ["RS256", "RS384", "RS512"] ->
+        [kid, alg, key |> JOSE.JWK.from_pem()] |> new()
+      true ->
+        [kid, alg, key |> JOSE.JWK.from_map()] |> new()
     end
   end
 

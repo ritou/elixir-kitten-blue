@@ -17,7 +17,9 @@ defmodule KittenBlue.JWK do
   alg = "RS256"
   key = JOSE.JWK.from_pem_file("rsa-2048.pem") 
 
+  kb_jwk = KittenBlue.JWK.new([kid, alg, key])
   kb_jwk = KittenBlue.JWK.new([kid: kid, alg: alg, key: key])
+  kb_jwk = KittenBlue.JWK.new(%{kid: kid, alg: alg, key: key})
   ```
   """
   @spec new(params :: Keywords.t()) :: t
@@ -25,29 +27,11 @@ defmodule KittenBlue.JWK do
     struct(__MODULE__, Map.new(params))
   end
 
-  @doc """
-  ```Elixir
-  kid = "sample_201804"
-  alg = "RS256"
-  key = JOSE.JWK.from_pem_file("rsa-2048.pem") 
-
-  kb_jwk = KittenBlue.JWK.new([kid, alg, key])
-  ```
-  """
   @spec new(params :: List.t()) :: t
   def new([kid, alg, key]) do
     struct(__MODULE__, %{kid: kid, alg: alg, key: key})
   end
 
-  @doc """
-  ```Elixir
-  kid = "sample_201804"
-  alg = "RS256"
-  key = JOSE.JWK.from_pem_file("rsa-2048.pem") 
-
-  kb_jwk = KittenBlue.JWK.new(%{kid: kid, alg: alg, key: key})
-  ```
-  """
   @spec new(params :: Map.t()) :: t
   def new(params = %{kid: _, alg: _, key: _}) do
     struct(__MODULE__, params)
@@ -61,7 +45,11 @@ defmodule KittenBlue.JWK do
   public_jwk_sets = KittenBlue.JWK.list_to_public_jwk_sets(kb_jwk_list)
   ```
   """
-  @spec list_to_public_jwk_sets(jwk_list :: List.t()) :: map
+  @spec list_to_public_jwk_sets(jwk_list :: List.t()) :: map | nil
+  def list_to_public_jwk_sets([]) do
+    nil
+  end
+
   def list_to_public_jwk_sets(jwk_list) when is_list(jwk_list) do
     %{
       "keys" =>
@@ -100,13 +88,13 @@ defmodule KittenBlue.JWK do
   ```
   """
   @spec public_jwk_sets_to_list(public_json_web_key_sets :: map) :: List.t()
-  def public_jwk_sets_to_list(_ = %{"keys" => public_jwk_sets}) when is_list(public_jwk_sets) do
+  def public_jwk_sets_to_list(_public_json_web_key_sets = %{"keys" => public_jwk_sets}) when is_list(public_jwk_sets) do
     public_jwk_sets
     |> Enum.map(fn public_jwk_set -> from_public_jwk_set(public_jwk_set) end)
     |> Enum.filter(&(!is_nil(&1)))
   end
 
-  def public_jwk_sets_to_list(_) do
+  def public_jwk_sets_to_list(_public_json_web_key_sets) do
     []
   end
 
@@ -134,6 +122,40 @@ defmodule KittenBlue.JWK do
 
   def from_public_jwk_set(_) do
     nil
+  end
+
+  @doc """
+  Convert `KittenBlue.JWK` List to conpact storable format for configration.
+
+  ```
+  kb_jwk_list = [kb_jwk]
+  kb_jwk_list_config = KittenBlue.JWK.list_to_compact(kb_jwk_list)
+  ```
+  """
+  @spec list_to_compact(jwk_list :: List.t()) :: Keywords.t()
+  def list_to_compact(jwk_list) do
+    jwk_list
+    |> Enum.map(fn jwk -> to_compact(jwk) end)
+  end
+
+  @doc """
+  Convert `KittenBlue.JWK` to conpact storable format for configration.
+
+  ```
+  kb_jwk_config = KittenBlue.JWK.to_compact(kb_jwk)
+  ```
+  """
+  @spec to_compact(jwk :: t()) :: Keywords.t()
+  def to_compact(jwk) do
+    case jwk.alg do
+      alg when alg in ["HS256", "HS384", "HS512"] ->
+        [jwk.kid, jwk.alg, jwk.key |> JOSE.JWK.to_oct() |> elem(1) |> Base.encode64(padding: false)]
+      alg when alg in ["RS256", "RS384", "RS512"] ->
+        [jwk.kid, jwk.alg, jwk.key |> JOSE.JWK.to_pem() |> elem(1)]
+      _ ->
+        # use jwk set
+        [jwk.kid, jwk.alg, jwk.key |> JOSE.JWK.to_map() |> elem(1)]
+    end
   end
 
 end

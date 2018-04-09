@@ -115,4 +115,28 @@ defmodule KittenBlue.JWKTest do
     google_public_jwk_list = JWK.public_jwk_sets_to_list(google_public_jwk_sets_20180105)
     assert length(google_public_jwk_list) == 4
   end
+
+  test "compact" do
+    alg_hs256 = "HS256"
+    kid_hs256 = "hs256_201804"
+    key_hs256_oct = :crypto.strong_rand_bytes(32)
+    key_hs256 = key_hs256_oct |> JOSE.JWK.from_oct()
+    jwk_hs256 = JWK.new([kid_hs256, alg_hs256, key_hs256])
+    assert [kid_hs256, alg_hs256, key_hs256_oct |> Base.encode64(padding: false)] == JWK.to_compact(jwk_hs256)
+    assert [[kid_hs256, alg_hs256, key_hs256_oct |> Base.encode64(padding: false)]] == JWK.list_to_compact([jwk_hs256])
+
+    alg_rs256 = "RS256"
+    kid_rs256 = "rs256_201804"
+    key_rs256 = JOSE.JWK.from_pem_file("sample_pem/rsa-2048.pem")
+    jwk_rs256 = JWK.new([kid_rs256, alg_rs256, key_rs256])
+    assert [kid_rs256, alg_rs256, key_rs256 |> JOSE.JWK.to_pem() |> elem(1)] == JWK.to_compact(jwk_rs256)
+    assert [[kid_rs256, alg_rs256, key_rs256 |> JOSE.JWK.to_pem() |> elem(1)]] == JWK.list_to_compact([jwk_rs256])
+
+    alg_es256 = "ES256"
+    kid_es256 = "es256_201804"
+    key_es256 = JOSE.JWK.from_pem_file("sample_pem/ec-secp256r1-alice.pem")
+    jwk_es256 = JWK.new([kid_es256, alg_es256, key_es256])
+    assert [kid_es256, alg_es256, key_es256 |> JOSE.JWK.to_map() |> elem(1)] == JWK.to_compact(jwk_es256)
+    assert [[kid_es256, alg_es256, key_es256 |> JOSE.JWK.to_map() |> elem(1)]] == JWK.list_to_compact([jwk_es256])
+  end
 end

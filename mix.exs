@@ -31,6 +31,10 @@ defmodule KittenBlue.Mixfile do
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
       {:jose, "~> 1.8.4"},
       {:poison, "~> 3.1.0"},
+      {:httpoison, "~> 1.2.0"},
+
+      # for test
+      {:mock, "~> 0.3.0", only: :test},
 
       # for docs
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},

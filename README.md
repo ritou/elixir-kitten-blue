@@ -5,6 +5,7 @@
 `KittenBlue` is a JOSE wrapper library that makes JWT implementation simpler.
 
 * `KittenBlue.JWK` : Structure containing `kid`, `alg`, `JOSE.JWK` and handling functions
+  * `KittenBlue.JWK.Google` : JWK Handling module for Google Public JWKs
 * `KittenBlue.JWS` : `JOSE.JWS` wrappter functions using `KittenBlue.JWK`
 * `KittenBlue.JWE` : (Future Work) `JOSE.JWE` wrappter functions using `KittenBlue.JWK`
 
@@ -16,7 +17,7 @@ by adding `kitten_blue` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:kitten_blue, "~> 0.1.2"}
+    {:kitten_blue, "~> 0.1.3"}
   ]
 end
 ```

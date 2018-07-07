@@ -33,7 +33,7 @@ defmodule KittenBlue.Mixfile do
       {:poison, "~> 3.1.0"},
 
       # for docs
-      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.18.3", only: :dev, runtime: false},
     ]
   end
 end

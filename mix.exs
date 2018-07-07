@@ -37,7 +37,7 @@ defmodule KittenBlue.Mixfile do
       {:mock, "~> 0.3.0", only: :test},
 
       # for docs
-      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.18.3", only: :dev, runtime: false},
     ]
   end
 end

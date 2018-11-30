@@ -1,6 +1,5 @@
 defmodule KittenBlue.JWK.GoogleTest do
   use ExUnit.Case
-  doctest KittenBlue.JWK.Google
 
   import Mock
 

@@ -11,16 +11,20 @@ defmodule KittenBlue.JWS do
 
   ```
   {:ok, payload} = KittenBlue.JWS.verify(token, kb_jwk_list)
+
+  # with header param
+  {:ok, payload} = KittenBlue.JWS.verify(token, kb_jwk_list, %{"typ" => "my_jwt_usage"})
   ```
   """
-  @spec verify(token :: String.t(), keys :: List.t()) ::
+  @spec verify(token :: String.t(), keys :: List.t(), required_header :: map) ::
           {:error, :invalid_jwt_format}
           | {:error, :invalid_jwt_kid}
           | {:error, :invalid_jwt_signature}
+          | {:error, :invalid_jwt_header}
           | {:ok, payload :: map}
-  def verify(token, keys) when is_binary(token) and is_list(keys) do
+  def verify(token, keys, required_header \\ nil) when is_binary(token) and is_list(keys) do
     with {:ok, jwk} <- validate_jwt_header(token, keys),
-         {:ok, payload} <- validate_jwt_signature(token, jwk) do
+         {:ok, payload} <- validate_jwt_signature(token, jwk, required_header) do
       {:ok, payload}
     else
       _ = e -> e
@@ -54,13 +58,29 @@ defmodule KittenBlue.JWS do
     end
   end
 
-  @spec validate_jwt_signature(token :: String.t(), jwk :: KittenBlue.JWK.t()) ::
+  @spec validate_jwt_signature(
+          token :: String.t(),
+          jwk :: KittenBlue.JWK.t(),
+          required_header :: map
+        ) ::
           {:error, :invalid_jwt_signature}
+          | {:error, :invalid_jwt_header}
           | {:ok, payload :: map}
-  defp validate_jwt_signature(token, jwk) do
+  defp validate_jwt_signature(token, jwk, required_header) do
     case JOSE.JWT.verify_strict(jwk.key, [jwk.alg], token) do
-      {true, %JOSE.JWT{fields: payload}, _} -> {:ok, payload}
-      _ -> {:error, :invalid_jwt_signature}
+      {true, %JOSE.JWT{fields: payload}, %JOSE.JWS{fields: header}} ->
+        if is_nil(required_header) do
+          {:ok, payload}
+        else
+          if Map.equal?(header, Map.merge(header, required_header)) do
+            {:ok, payload}
+          else
+            {:error, :invalid_jwt_header}
+          end
+        end
+
+      _ ->
+        {:error, :invalid_jwt_signature}
     end
   end
 
@@ -69,21 +89,26 @@ defmodule KittenBlue.JWS do
 
   ```
   {:ok, token} = KittenBlue.JWS.sign(payload, kb_jwk)
+
+  # use header param
+  {:ok, token} = KittenBlue.JWS.sign(payload, kb_jwk, %{"typ" => "my_jwt_usage"})
   ```
   """
-  @spec sign(payload :: map, key :: KittenBlue.JWK.t()) ::
+  @spec sign(payload :: map, key :: KittenBlue.JWK.t(), header :: map) ::
           {:ok, String.t()} | {:error, :invalid_key}
-  def sign(payload, key = %KittenBlue.JWK{}) do
+  def sign(payload, key, header \\ %{})
+
+  def sign(payload, key = %KittenBlue.JWK{}, header) do
     token =
       key.key
-      |> JOSE.JWT.sign(%{"alg" => key.alg, "kid" => key.kid}, payload)
+      |> JOSE.JWT.sign(Map.merge(header, %{"alg" => key.alg, "kid" => key.kid}), payload)
       |> JOSE.JWS.compact()
       |> elem(1)
 
     {:ok, token}
   end
 
-  def sign(_, _) do
+  def sign(_, _, _) do
     {:error, :invalid_key}
   end
 end

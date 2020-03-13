@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.5
+
+* Add header parameter for optional param when generation/verification JWS
+
+## 0.1.4 
+
+* Relax a dependency requirement of :httpoison (thanks to enerick)
+* remove doctest from JWK.GoogleTest (thanks to enerick)
+
+## 0.1.3
+
+* update deps
+* support google jwks handling module
+
 ## 0.1.2 (2018-04-09)
 
 * Add functions for converting to compact storable format.

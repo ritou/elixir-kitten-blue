@@ -6,8 +6,10 @@ defmodule KittenBlue.Mixfile do
       app: :kitten_blue,
       version: "0.1.3",
       elixir: "~> 1.3",
-      start_permanent: Mix.env == :prod,
-      description: "KittenBlue is a JOSE wrapper library that makes JWT implementation simpler for Elixir.",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      start_permanent: Mix.env() == :prod,
+      description:
+        "KittenBlue is a JOSE wrapper library that makes JWT implementation simpler for Elixir.",
       package: [
         maintainers: ["Ryo Ito"],
         licenses: ["MIT"],
@@ -24,6 +26,9 @@ defmodule KittenBlue.Mixfile do
     ]
   end
 
+  def elixirc_paths(:test), do: ["lib", "test/support"]
+  def elixirc_paths(_), do: ["lib"]
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
@@ -34,10 +39,10 @@ defmodule KittenBlue.Mixfile do
       {:httpoison, "~> 1.4"},
 
       # for test
-      {:mock, "~> 0.3.0", only: :test},
+      {:mox, "~> 0.5", only: :test},
 
       # for docs
-      {:ex_doc, "~> 0.18.3", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.18.3", only: :dev, runtime: false}
     ]
   end
 end

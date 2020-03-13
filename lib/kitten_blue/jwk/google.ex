@@ -8,6 +8,8 @@ defmodule KittenBlue.JWK.Google do
   # see https://developers.google.com/identity/protocols/OpenIDConnect
   @google_jwks_uri "https://www.googleapis.com/oauth2/v3/certs"
 
+  @http_client Application.fetch_env!(:kitten_blue, __MODULE__) |> Keyword.fetch!(:http_client)
+
   @doc """
   This function fetch Google JWK Sets and return the list of `KittenBlue.JWK`.
 
@@ -52,7 +54,7 @@ defmodule KittenBlue.JWK.Google do
   """
   @spec fetch!() :: [KittenBlue.JWK.t()] | nil
   def fetch!() do
-    case HTTPoison.get(@google_jwks_uri) do
+    case @http_client.get(@google_jwks_uri) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         Poison.decode!(body) |> KittenBlue.JWK.public_jwk_sets_to_list()
 

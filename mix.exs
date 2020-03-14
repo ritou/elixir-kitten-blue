@@ -42,7 +42,7 @@ defmodule KittenBlue.Mixfile do
       {:mox, "~> 0.5", only: :test},
 
       # for docs
-      {:ex_doc, "~> 0.18.3", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.21.3", only: :dev, runtime: false}
     ]
   end
 end

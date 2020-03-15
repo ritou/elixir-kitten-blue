@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.6
+
+* Add function for varidation standard claims
+
 ## 0.1.5
 
 * Add header parameter for optional param when generation/verification JWS

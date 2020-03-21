@@ -20,7 +20,7 @@ use Mix.Config
 #
 #     config :logger, level: :info
 #
-config :kitten_blue, KittenBlue.JWK.Google, http_client: HTTPoison
+config :kitten_blue, KittenBlue.JWK, http_client: HTTPoison
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment

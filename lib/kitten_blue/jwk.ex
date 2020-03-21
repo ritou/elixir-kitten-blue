@@ -3,6 +3,8 @@ defmodule KittenBlue.JWK do
   Structure containing `kid`, `alg`, `JOSE.JWK` and handling functions
   """
 
+  require Logger
+
   defstruct [
     :kid,
     :alg,
@@ -10,6 +12,8 @@ defmodule KittenBlue.JWK do
   ]
 
   @type t :: %__MODULE__{kid: String.t(), alg: String.t(), key: JOSE.JWK.t()}
+
+  @http_client Application.fetch_env!(:kitten_blue, __MODULE__) |> Keyword.fetch!(:http_client)
 
   @doc """
   ```Elixir
@@ -88,7 +92,8 @@ defmodule KittenBlue.JWK do
   ```
   """
   @spec public_jwk_sets_to_list(public_json_web_key_sets :: map) :: List.t()
-  def public_jwk_sets_to_list(_public_json_web_key_sets = %{"keys" => public_jwk_sets}) when is_list(public_jwk_sets) do
+  def public_jwk_sets_to_list(_public_json_web_key_sets = %{"keys" => public_jwk_sets})
+      when is_list(public_jwk_sets) do
     public_jwk_sets
     |> Enum.map(fn public_jwk_set -> from_public_jwk_set(public_jwk_set) end)
     |> Enum.filter(&(!is_nil(&1)))
@@ -149,9 +154,15 @@ defmodule KittenBlue.JWK do
   def to_compact(jwk) do
     case jwk.alg do
       alg when alg in ["HS256", "HS384", "HS512"] ->
-        [jwk.kid, jwk.alg, jwk.key |> JOSE.JWK.to_oct() |> elem(1) |> Base.encode64(padding: false)]
+        [
+          jwk.kid,
+          jwk.alg,
+          jwk.key |> JOSE.JWK.to_oct() |> elem(1) |> Base.encode64(padding: false)
+        ]
+
       alg when alg in ["RS256", "RS384", "RS512"] ->
         [jwk.kid, jwk.alg, jwk.key |> JOSE.JWK.to_pem() |> elem(1)]
+
       _ ->
         [jwk.kid, jwk.alg, jwk.key |> JOSE.JWK.to_map() |> elem(1)]
     end
@@ -183,11 +194,35 @@ defmodule KittenBlue.JWK do
     cond do
       alg in ["HS256", "HS384", "HS512"] ->
         [kid, alg, key |> Base.decode64!(padding: false) |> JOSE.JWK.from_oct()] |> new()
+
       alg in ["RS256", "RS384", "RS512"] ->
         [kid, alg, key |> JOSE.JWK.from_pem()] |> new()
+
       true ->
         [kid, alg, key |> JOSE.JWK.from_map()] |> new()
     end
   end
 
+  @doc """
+  Fetch jwks uri and return jwk list.
+
+  ```
+  kb_jwk_list = KittenBlue.JWK.fetch!(jwks_uri)
+  ```
+  """
+  @spec fetch!(jwks_uri :: String.t()) :: [t()] | nil
+  def fetch!(jwks_uri) do
+    case @http_client.get(jwks_uri) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        Poison.decode!(body) |> __MODULE__.public_jwk_sets_to_list()
+
+      {:ok, %HTTPoison.Response{} = res} ->
+        Logger.warn("HTTPoison.get returned {:ok, #{inspect(res)}}")
+        nil
+
+      {:error, %HTTPoison.Error{} = error} ->
+        Logger.warn("HTTPoison.get returned {:error, #{inspect(error)}}")
+        nil
+    end
+  end
 end

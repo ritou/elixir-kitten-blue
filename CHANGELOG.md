@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.7
+
+* Support Apple's JWKs
+
 ## 0.1.6
 
 * Add function for varidation standard claims

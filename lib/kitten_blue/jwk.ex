@@ -154,10 +154,10 @@ defmodule KittenBlue.JWK do
   kb_jwk_list_config = KittenBlue.JWK.list_to_compact(kb_jwk_list)
   ```
   """
-  @spec list_to_compact(jwk_list :: List.t()) :: List.t()
-  def list_to_compact(jwk_list) do
+  @spec list_to_compact(jwk_list :: List.t(), opts :: Keyword.t()) :: List.t()
+  def list_to_compact(jwk_list, opts \\ []) do
     jwk_list
-    |> Enum.map(fn jwk -> to_compact(jwk) end)
+    |> Enum.map(fn jwk -> to_compact(jwk, opts) end)
   end
 
   @doc """
@@ -173,14 +173,14 @@ defmodule KittenBlue.JWK do
       {_, true} ->
         [jwk.kid, jwk.alg, jwk.key |> JOSE.JWK.to_map() |> elem(1)]
 
-      {alg, _} when alg in @algs_for_oct ->
+      {alg, nil} when alg in @algs_for_oct ->
         [
           jwk.kid,
           jwk.alg,
           jwk.key |> JOSE.JWK.to_oct() |> elem(1) |> Base.encode64(padding: false)
         ]
 
-      {alg, _} when alg in @algs_for_pem ->
+      {alg, nil} when alg in @algs_for_pem ->
         [jwk.kid, jwk.alg, jwk.key |> JOSE.JWK.to_pem() |> elem(1)]
 
       {_, _} ->

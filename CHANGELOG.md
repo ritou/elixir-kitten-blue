@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0
+
+* Update jose version and support other algs at jwk
+
 ## 0.1.8
 
 * Use Jason as JSON module and relax some deps (thanks to enerick)

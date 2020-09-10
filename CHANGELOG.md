@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.8
+
+* Use Jason as JSON module and relax some deps (thanks to enerick)
+
 ## 0.1.7
 
 * Support Apple's JWKs

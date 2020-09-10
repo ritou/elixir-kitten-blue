@@ -240,5 +240,72 @@ defmodule KittenBlue.JWKTest do
     assert [jwk_es256] == JWK.compact_to_list(es_compact_list_with_map)
   end
 
+  test "Ed25519" do
+    alg = "Ed25519"
+    kid = "Ed25519_202009"
+    # ref. https://tools.ietf.org/html/rfc8037#appendix-A
+    ed25519_priv_map = %{
+      "kty" => "OKP",
+      "crv" => "Ed25519",
+      "d" => "nWGxne_9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A",
+      "x" => "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"
+    }
+
+    key_ed25519 = JOSE.JWK.from_map(ed25519_priv_map)
+    jwk_ed25519 = JWK.new([kid, alg, key_ed25519])
+
+    # NOTE: JOSE.JWK.from_pem issue (ErlangError) Erlang error: :curve25519_unsupported
+    JOSE.crypto_fallback(true)
+
+    # Ed25519 with pem
+    ed25519_compact = JWK.to_compact(jwk_ed25519)
+    assert [kid, alg, key_ed25519 |> JOSE.JWK.to_pem() |> elem(1)] == ed25519_compact
+    assert jwk_ed25519 == JWK.from_compact(ed25519_compact)
+    ed25519_compact_list = JWK.list_to_compact([jwk_ed25519])
+    assert [[kid, alg, key_ed25519 |> JOSE.JWK.to_pem() |> elem(1)]] == ed25519_compact_list
+    assert [jwk_ed25519] == JWK.compact_to_list(ed25519_compact_list)
+
+    # Ed25519 with map
+    ed25519_compact_with_map = JWK.to_compact(jwk_ed25519, use_map: true)
+    assert [kid, alg, key_ed25519 |> JOSE.JWK.to_map() |> elem(1)] == ed25519_compact_with_map
+    assert jwk_ed25519 == JWK.from_compact(ed25519_compact_with_map)
+    ed25519_compact_list_with_map = JWK.list_to_compact([jwk_ed25519], use_map: true)
+
+    assert [[kid, alg, key_ed25519 |> JOSE.JWK.to_map() |> elem(1)]] ==
+             ed25519_compact_list_with_map
+
+    assert [jwk_ed25519] == JWK.compact_to_list(ed25519_compact_list_with_map)
+  end
+
+  test "Ed448" do
+    alg = "Ed448"
+    kid = "Ed448_202009"
+    # ref. https://tools.ietf.org/html/rfc8037#appendix-A
+    ed448_public_map = %{
+      "kty" => "OKP",
+      "crv" => "X448",
+      "x" => "mwj3zDG34-Z9ItWuoSEHSic70rg94Jxj-qc9LCLF2bvINmRyQdlT1AxbEtqIEg1TF3-A5TLEH6A"
+    }
+
+    key_ed448 = JOSE.JWK.from_map(ed448_public_map)
+    jwk_ed448 = JWK.new([kid, alg, key_ed448])
+
+    # Ed448 with pem
+    ed448_compact = JWK.to_compact(jwk_ed448)
+    assert [kid, alg, key_ed448 |> JOSE.JWK.to_pem() |> elem(1)] == ed448_compact
+    assert jwk_ed448 == JWK.from_compact(ed448_compact)
+    ed448_compact_list = JWK.list_to_compact([jwk_ed448])
+    assert [[kid, alg, key_ed448 |> JOSE.JWK.to_pem() |> elem(1)]] == ed448_compact_list
+    assert [jwk_ed448] == JWK.compact_to_list(ed448_compact_list)
+
+    # Ed448 with map
+    ed448_compact_with_map = JWK.to_compact(jwk_ed448, use_map: true)
+    assert [kid, alg, key_ed448 |> JOSE.JWK.to_map() |> elem(1)] == ed448_compact_with_map
+    assert jwk_ed448 == JWK.from_compact(ed448_compact_with_map)
+    ed448_compact_list_with_map = JWK.list_to_compact([jwk_ed448], use_map: true)
+    assert [[kid, alg, key_ed448 |> JOSE.JWK.to_map() |> elem(1)]] == ed448_compact_list_with_map
+    assert [jwk_ed448] == JWK.compact_to_list(ed448_compact_list_with_map)
+  end
+
   # TODO: test for fetch!()
 end

@@ -21,6 +21,7 @@ defmodule KittenBlue.JWK do
     "ES256",
     "ES384",
     "ES512",
+    "Ed25519",
     "Ed25519ph",
     "Ed448",
     "Ed448ph",

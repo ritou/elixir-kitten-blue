@@ -19,7 +19,7 @@ defmodule KittenBlue.JWK do
   ```Elixir
   kid = "sample_201804"
   alg = "RS256"
-  key = JOSE.JWK.from_pem_file("rsa-2048.pem") 
+  key = JOSE.JWK.from_pem_file("rsa-2048.pem")
 
   kb_jwk = KittenBlue.JWK.new([kid, alg, key])
   kb_jwk = KittenBlue.JWK.new([kid: kid, alg: alg, key: key])
@@ -214,7 +214,7 @@ defmodule KittenBlue.JWK do
   def fetch!(jwks_uri) do
     case @http_client.get(jwks_uri) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        Poison.decode!(body) |> __MODULE__.public_jwk_sets_to_list()
+        Jason.decode!(body) |> __MODULE__.public_jwk_sets_to_list()
 
       {:ok, %HTTPoison.Response{} = res} ->
         Logger.warn("HTTPoison.get returned {:ok, #{inspect(res)}}")

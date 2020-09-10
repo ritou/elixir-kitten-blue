@@ -15,6 +15,23 @@ defmodule KittenBlue.JWK do
 
   @http_client Application.fetch_env!(:kitten_blue, __MODULE__) |> Keyword.fetch!(:http_client)
 
+  # NOTE: from_compact/to_conpact does not support Poly1305
+  @algs_for_oct ["HS256", "HS384", "HS512"]
+  @algs_for_pem [
+    "ES256",
+    "ES384",
+    "ES512",
+    "Ed25519ph",
+    "Ed448",
+    "Ed448ph",
+    "PS256",
+    "PS384",
+    "PS512",
+    "RS256",
+    "RS384",
+    "RS512"
+  ]
+
   @doc """
   ```Elixir
   kid = "sample_201804"
@@ -150,21 +167,24 @@ defmodule KittenBlue.JWK do
   kb_jwk_config = KittenBlue.JWK.to_compact(kb_jwk)
   ```
   """
-  @spec to_compact(jwk :: t()) :: List.t()
-  def to_compact(jwk) do
-    case jwk.alg do
-      alg when alg in ["HS256", "HS384", "HS512"] ->
+  @spec to_compact(jwk :: t(), opts :: Keyword.t()) :: List.t()
+  def to_compact(jwk, opts \\ []) do
+    case {jwk.alg, opts[:use_map]} do
+      {_, true} ->
+        [jwk.kid, jwk.alg, jwk.key |> JOSE.JWK.to_map() |> elem(1)]
+
+      {alg, _} when alg in @algs_for_oct ->
         [
           jwk.kid,
           jwk.alg,
           jwk.key |> JOSE.JWK.to_oct() |> elem(1) |> Base.encode64(padding: false)
         ]
 
-      alg when alg in ["RS256", "RS384", "RS512"] ->
+      {alg, _} when alg in @algs_for_pem ->
         [jwk.kid, jwk.alg, jwk.key |> JOSE.JWK.to_pem() |> elem(1)]
 
-      _ ->
-        [jwk.kid, jwk.alg, jwk.key |> JOSE.JWK.to_map() |> elem(1)]
+      {_, _} ->
+        []
     end
   end
 
@@ -189,17 +209,20 @@ defmodule KittenBlue.JWK do
   kb_jwk = KittenBlue.JWK.from_compact(kb_jwk_config)
   ```
   """
-  @spec from_compact(jwk_compact :: list()) :: t()
+  @spec from_compact(jwk_compact :: list()) :: t() | nil
   def from_compact(_jwk_compact = [kid, alg, key]) do
     cond do
-      alg in ["HS256", "HS384", "HS512"] ->
+      is_map(key) ->
+        [kid, alg, key |> JOSE.JWK.from_map()] |> new()
+
+      alg in @algs_for_oct ->
         [kid, alg, key |> Base.decode64!(padding: false) |> JOSE.JWK.from_oct()] |> new()
 
-      alg in ["RS256", "RS384", "RS512"] ->
+      alg in @algs_for_pem ->
         [kid, alg, key |> JOSE.JWK.from_pem()] |> new()
 
       true ->
-        [kid, alg, key |> JOSE.JWK.from_map()] |> new()
+        nil
     end
   end
 

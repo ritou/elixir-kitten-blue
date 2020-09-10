@@ -34,9 +34,9 @@ defmodule KittenBlue.Mixfile do
     [
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
-      {:jose, "~> 1.8.4"},
-      {:poison, "~> 3.1.0"},
-      {:httpoison, "~> 1.4"},
+      {:jose, "~> 1.8"},
+      {:jason, "~> 1.2", optional: true},
+      {:httpoison, "~> 1.4", optional: true},
 
       # for test
       {:mox, "~> 0.5", only: :test},

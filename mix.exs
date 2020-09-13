@@ -35,9 +35,12 @@ defmodule KittenBlue.Mixfile do
       {:jose, "~> 1.10"},
       {:jason, "~> 1.2", optional: true},
 
+      # HTTP Client
+      {:scratcher, "~> 0.1"},
+      {:scratcher_hackney, "~> 0.1", optional: true},
+
       # for test
       {:mox, "~> 0.5", only: :test},
-      {:scratcher, "~> 0.1", only: :test},
 
       # for docs
       {:ex_doc, "~> 0.21.3", only: :dev, runtime: false}

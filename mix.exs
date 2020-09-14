@@ -37,7 +37,6 @@ defmodule KittenBlue.Mixfile do
 
       # HTTP Client
       {:scratcher, "~> 0.1"},
-      {:scratcher_hackney, "~> 0.1", optional: true},
 
       # for test
       {:mox, "~> 0.5", only: :test},

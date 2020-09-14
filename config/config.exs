@@ -20,7 +20,9 @@ use Mix.Config
 #
 #     config :logger, level: :info
 #
-config :kitten_blue, KittenBlue.JWK, http_client: Scratcher.Hackney
+
+# NOTE: You need to specify a module that uses Scratcher.HttpClient as a Behavior, such as Scratcher.Hackney.
+config :kitten_blue, KittenBlue.JWK, http_client: Scratcher.HttpClient
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment

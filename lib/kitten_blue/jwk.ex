@@ -254,4 +254,32 @@ defmodule KittenBlue.JWK do
         nil
     end
   end
+
+  @doc """
+  Convert config format to `KittenBlue.JWK` for main issuerance.
+
+  For JWT (JWS) signatures, there are cases where a single key is used to issue a signature and multiple keys are used for verification.
+  You can easily get the issuing key from the config with the following description.
+
+  ```elixir
+  config :your_app, Your.Module,
+    kid: "kid20200914",
+    keys: [["kid20200914", "HS256", "AyM1SysPpbyDfgZld3umj1qzKObwVMkoqQ-EstJQLr_T-1qS0gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr1Z9CAow"]]
+  ```
+
+  The key specified by `:kid` must be included in `:keys`.
+
+  ```elixir
+  @config Application.fetch_env!(:your_app, Your.Module)
+
+  kb_jwk_to_issue = find_key_to_issue(@config)
+  ```
+  """
+  @spec find_key_to_issue(config :: Keyword.t()) :: t() | nil
+  def find_key_to_issue(config) do
+    with keys <- config |> Keyword.fetch!(:keys) |> KittenBlue.JWK.compact_to_list(),
+         kid <- config |> Keyword.fetch!(:kid) do
+      Enum.find(keys, fn kb_jwk -> kb_jwk.kid == kid end)
+    end
+  end
 end

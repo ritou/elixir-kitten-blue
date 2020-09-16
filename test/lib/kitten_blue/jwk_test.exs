@@ -322,6 +322,19 @@ defmodule KittenBlue.JWKTest do
     key_to_issue = JWK.find_key_to_issue(config)
     assert key_to_issue.kid == config |> Keyword.fetch!(:kid)
     assert [JWK.to_compact(key_to_issue)] == config |> Keyword.fetch!(:keys)
+
+    config = [
+      kid: "kid20200914_not_exists",
+      keys: [
+        [
+          "kid20200914",
+          "HS256",
+          "7KE00igphFhgrU+pgZzZ/7jhNLxmSrba7hGeAFouN+VxYtDiXGYVR0eQ5jQIu6RysP0lsJk9QsUjXQ6F/HeNyivRud+46UOymMBkEo+5yv6mXksvgoZYXcwMckSyW2lz9GHLnnaX+vt78rqSsSSII6IKwvEayJXMCUvhFUO/UTFiY6GIHmJ1zZdOhUQz8OrFaRZos3ip3i4N4WWxm5d4N42KbDQHxb3oDwRDC6mDCu3+7vHBjnNF5dxcfYnUyQAxwDmUFLmnnogJ9rZyLXhbgb+1XtfgWW5CIuPtFXRd+14GRV/U+toUeV6atY3RgrsGCpowKherdr8Xbse6QraOsw"
+        ]
+      ]
+    ]
+
+    refute JWK.find_key_to_issue(config)
   end
 
   # TODO: test for fetch!()

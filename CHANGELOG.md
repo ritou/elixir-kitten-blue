@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+
+* Add JWK.find_key_to_issue
+
 ## 0.2.0
 
 * Update jose version and support other algs at jwk

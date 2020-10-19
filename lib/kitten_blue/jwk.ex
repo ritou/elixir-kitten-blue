@@ -233,19 +233,24 @@ defmodule KittenBlue.JWK do
   ```
   kb_jwk_list = KittenBlue.JWK.fetch!(jwks_uri)
   ```
+
+  NOTE: The HTTP client must be implemented using Scratcher.HttpClient as the Behavior.
+
+  * [hexdocs](https://hexdocs.pm/scratcher/Scratcher.HttpClient.html)
+  * [github](https://github.com/ritou/elixir-scratcher/blob/master/lib/scratcher/http_client.ex)
   """
   @spec fetch!(jwks_uri :: String.t()) :: [t()] | nil
   def fetch!(jwks_uri) do
-    case @http_client.get(jwks_uri) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+    case @http_client.request(:get, jwks_uri, "", [], []) do
+      {:ok, %{status_code: 200, body: body}} ->
         Jason.decode!(body) |> __MODULE__.public_jwk_sets_to_list()
 
-      {:ok, %HTTPoison.Response{} = res} ->
-        Logger.warn("HTTPoison.get returned {:ok, #{inspect(res)}}")
+      {:ok, %{} = res} ->
+        Logger.warn("HTTP Client returned {:ok, #{inspect(res)}}")
         nil
 
-      {:error, %HTTPoison.Error{} = error} ->
-        Logger.warn("HTTPoison.get returned {:error, #{inspect(error)}}")
+      {:error, %{reason: _} = error} ->
+        Logger.warn("HTTP Client returned {:error, #{inspect(error)}}")
         nil
     end
   end

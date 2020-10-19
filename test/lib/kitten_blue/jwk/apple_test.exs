@@ -28,8 +28,12 @@ defmodule KittenBlue.JWK.AppleTest do
   """
 
   test "fetch!" do
-    Mox.stub(KittenBlue.Mox.Http, :get, fn _ ->
-      {:ok, %HTTPoison.Response{status_code: 200, body: @apple_jwks_body}}
+    Mox.stub(KittenBlue.Mox.Http, :request, fn :get,
+                                               "https://appleid.apple.com/auth/keys",
+                                               _,
+                                               _,
+                                               _ ->
+      {:ok, %{status_code: 200, body: @apple_jwks_body, headers: []}}
     end)
 
     assert KittenBlue.JWK.Apple.fetch!() ==

@@ -1,1 +1,1 @@
-Mox.defmock(KittenBlue.Mox.Http, for: HTTPoison.Base)
+Mox.defmock(KittenBlue.Mox.Http, for: Scratcher.HttpClient)

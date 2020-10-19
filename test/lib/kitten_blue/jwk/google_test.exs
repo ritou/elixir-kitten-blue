@@ -28,8 +28,12 @@ defmodule KittenBlue.JWK.GoogleTest do
   """
 
   test "fetch!" do
-    Mox.stub(KittenBlue.Mox.Http, :get, fn _ ->
-      {:ok, %HTTPoison.Response{status_code: 200, body: @google_jwks_body}}
+    Mox.stub(KittenBlue.Mox.Http, :request, fn :get,
+                                               "https://www.googleapis.com/oauth2/v3/certs",
+                                               _,
+                                               _,
+                                               _ ->
+      {:ok, %{status_code: 200, body: @google_jwks_body, header: []}}
     end)
 
     assert KittenBlue.JWK.Google.fetch!() ==

@@ -4,7 +4,7 @@ defmodule KittenBlue.Mixfile do
   def project do
     [
       app: :kitten_blue,
-      version: "0.2.1",
+      version: "0.3.0",
       elixir: "~> 1.3",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,

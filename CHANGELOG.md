@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+
+* Use Scratcher to remove dependency on HTTPoison
+
 ## 0.2.1
 
 * Add JWK.find_key_to_issue

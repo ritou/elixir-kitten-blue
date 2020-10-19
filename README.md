@@ -17,7 +17,7 @@ by adding `kitten_blue` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:kitten_blue, "~> 0.2"}
+    {:kitten_blue, "~> 0.3"}
   ]
 end
 ```

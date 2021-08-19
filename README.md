@@ -1,6 +1,7 @@
 # KittenBlue
 
-[![Build Status](https://travis-ci.org/ritou/elixir-kitten-blue.svg?branch=master)](https://travis-ci.org/ritou/elixir-kitten-blue)
+[ci]: https://github.com/ritou/elixir-kitten-blue
+[ci-img]: https://github.com/ritou/elixir-kitten-blue/actions/workflows/ci.yml/badge.svg
 
 `KittenBlue` is a JOSE wrapper library that makes JWT implementation simpler.
 

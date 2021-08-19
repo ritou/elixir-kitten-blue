@@ -4,7 +4,7 @@ defmodule KittenBlue.Mixfile do
   def project do
     [
       app: :kitten_blue,
-      version: "0.3.0",
+      version: "0.4.0",
       elixir: "~> 1.3",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -32,17 +32,17 @@ defmodule KittenBlue.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:jose, "~> 1.10"},
+      {:jose, "~> 1.11"},
       {:jason, "~> 1.2", optional: true},
 
       # HTTP Client
       {:scratcher, "~> 0.1"},
 
       # for test
-      {:mox, "~> 0.5", only: :test},
+      {:mox, "~> 1.0", only: :test},
 
       # for docs
-      {:ex_doc, "~> 0.21.3", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.25.1", only: :dev, runtime: false}
     ]
   end
 end

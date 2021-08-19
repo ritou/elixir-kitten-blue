@@ -1,6 +1,6 @@
 # KittenBlue
 
-[![Actions Status](https://github.com/ritou/elixir-kitten-blue/actions/workflows/ci.yml/badge.svg)](https://github.com/ritou/elixir-kitten-blue/actions/workflows/
+![Actions Status](https://github.com/ritou/elixir-kitten-blue/actions/workflows/ci.yml/badge.svg)
 
 `KittenBlue` is a JOSE wrapper library that makes JWT implementation simpler.
 

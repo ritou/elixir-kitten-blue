@@ -6,8 +6,10 @@
 
 * `KittenBlue.JWK` : Structure containing `kid`, `alg`, `JOSE.JWK` and handling functions
   * `KittenBlue.JWK.Google` : JWK Handling module for Google Public JWKs
+  * `KittenBlue.JWK.Apple` : JWK Handling module for Apple Public JWKs
 * `KittenBlue.JWS` : `JOSE.JWS` wrappter functions using `KittenBlue.JWK`
 * `KittenBlue.JWE` : (Future Work) `JOSE.JWE` wrappter functions using `KittenBlue.JWK`
+* `KittenBlue.JWT` : functions to handle JWT Claims
 
 ## Installation
 
@@ -17,7 +19,7 @@ by adding `kitten_blue` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:kitten_blue, "~> 0.3"}
+    {:kitten_blue, "~> 0.4"}
   ]
 end
 ```

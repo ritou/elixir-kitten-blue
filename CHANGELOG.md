@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.0
+
+* Make the configuration for KittenBlue.JWK optional.
+
+## 0.4.0
+
+* Good bye travis, and hello actions
+
 ## 0.3.0
 
 * Use Scratcher to remove dependency on HTTPoison

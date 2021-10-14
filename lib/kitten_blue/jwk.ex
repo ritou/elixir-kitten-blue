@@ -13,7 +13,14 @@ defmodule KittenBlue.JWK do
 
   @type t :: %__MODULE__{kid: String.t(), alg: String.t(), key: JOSE.JWK.t()}
 
-  @http_client Application.fetch_env!(:kitten_blue, __MODULE__) |> Keyword.fetch!(:http_client)
+  # Set the default value here to avoid compilation errors where Configuration does not exist.
+  @http_client (case(Application.fetch_env(:kitten_blue, __MODULE__)) do
+                  {:ok, config} ->
+                    config |> Keyword.fetch!(:http_client)
+
+                  _ ->
+                    Scratcher.HttpClient
+                end)
 
   # NOTE: from_compact/to_conpact does not support Poly1305
   @algs_for_oct ["HS256", "HS384", "HS512"]

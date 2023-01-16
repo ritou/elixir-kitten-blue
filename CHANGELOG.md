@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.0
+
+* Add function to verify JWS token with x5c header using JWK object (thanks to k-asm)
+
 ## 0.5.0
 
 * Make the configuration for KittenBlue.JWK optional.

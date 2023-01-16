@@ -1,4 +1,4 @@
-defmodule KittenBlue.Jws.X509Test do
+defmodule KittenBlue.JWS.X509Test do
   use ExUnit.Case
 
   alias KittenBlue.{JWK, JWS}

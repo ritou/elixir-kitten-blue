@@ -6,13 +6,14 @@ jobs:
     name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
     strategy:
       matrix:
-        otp: ['22.3', '23.3', '24.0']
-        elixir: ['1.10.4', '1.11.4', '1.12.2']
+        otp: ['24.3.4.7', '25.0.4', '25.1.2', '25.2']
+        elixir: ['1.13.4', '1.14.3']
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
+          version-type: 'strict'
       - run: mix deps.get
       - run: mix test

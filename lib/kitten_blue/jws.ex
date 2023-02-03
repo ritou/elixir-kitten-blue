@@ -98,7 +98,7 @@ defmodule KittenBlue.JWS do
           {:ok, String.t()} | {:error, :invalid_key}
   def sign(payload, key, header \\ %{})
 
-  def sign(payload, key = %KittenBlue.JWK{}, header) do
+  def sign(payload, %KittenBlue.JWK{x509: %KittenBlue.JWK.X509{} = x509} = key, header) do
     token =
       key.key
       |> JOSE.JWS.sign(
@@ -106,13 +106,19 @@ defmodule KittenBlue.JWS do
         header |> Map.merge(%{
           "alg" => key.alg,
           "kid" => key.kid,
-          "x5c" => if is_nil(key.x509) do
-            nil
-          else
-            key.x509.x5c
-          end
+          "x5c" => x509.x5c
         })
       )
+      |> JOSE.JWS.compact()
+      |> elem(1)
+
+    {:ok, token}
+  end
+
+  def sign(payload, %KittenBlue.JWK{} = key, header) do
+    token =
+      key.key
+      |> JOSE.JWT.sign(Map.merge(header, %{"alg" => key.alg, "kid" => key.kid}), payload)
       |> JOSE.JWS.compact()
       |> elem(1)
 

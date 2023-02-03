@@ -4,7 +4,7 @@ defmodule KittenBlue.JWK.X509Test do
   alias KittenBlue.JWK
   doctest JWK.X509
 
-  describe "new_from_jws_token" do
+  describe "RS256 new_from_jws_token/2" do
     setup do
       key = File.read!("sample_pem/rsa-2048.pem") |> X509.PrivateKey.from_pem!()
 

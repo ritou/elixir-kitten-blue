@@ -8,10 +8,11 @@ defmodule KittenBlue.JWK do
   defstruct [
     :kid,
     :alg,
-    :key
+    :key,
+    :x509 # optional
   ]
 
-  @type t :: %__MODULE__{kid: String.t(), alg: String.t(), key: JOSE.JWK.t()}
+  @type t :: %__MODULE__{kid: String.t(), alg: String.t(), key: JOSE.JWK.t(), x509: KittenBlue.JWK.X509.t()}
 
   # Set the default value here to avoid compilation errors where Configuration does not exist.
   @http_client (case(Application.fetch_env(:kitten_blue, __MODULE__)) do

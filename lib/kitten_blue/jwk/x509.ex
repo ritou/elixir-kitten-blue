@@ -3,7 +3,36 @@ defmodule KittenBlue.JWK.X509 do
   Handling JWK modules with regard to X.509
   """
 
+  defstruct [
+    :x5c
+  ]
+
+  @type t :: %__MODULE__{x5c: [String.t()]}
+
   @type certificate :: X509.ASN1.record(:otp_certificate)
+
+  @doc """
+  Generate KittenBlue.JWK.X509 struct
+
+  ```Elixir
+  kid = "sample_202301"
+  alg = "RS256"
+  key = JOSE.JWK.from_pem_file("rsa-2048.pem")
+
+  x5c = [cert |> X509.Certificate.to_der() |> Base.encode64()]
+  x509 = KittenBlue.JWK.X509.new([x5c: x5c])
+  kb_jwk = KittenBlue.JWK.new(%{kid: kid, alg: alg, key: key, x509: x509})
+  ```
+  """
+  @spec new(params :: Keywords.t()) :: t
+  def new(params = [x5c: _]) do
+    struct(__MODULE__, Map.new(params))
+  end
+
+  @spec new(params :: Map.t()) :: t
+  def new(params = %{x5c: _}) do
+    struct(__MODULE__, params)
+  end
 
   @doc """
   Generate KittenBlue.JWK from JWS Token that includes X.509 Certificate Chain

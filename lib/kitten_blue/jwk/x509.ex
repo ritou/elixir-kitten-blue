@@ -52,7 +52,13 @@ defmodule KittenBlue.JWK.X509 do
 
           case :public_key.pkix_path_validation(trusted_cert, cert_chain, []) do
             {:ok, {{_, key, _}, _}} ->
-              [kid, alg, key |> JOSE.JWK.from_key()] |> KittenBlue.JWK.new()
+              %{
+                kid: kid,
+                alg: alg,
+                key: key |> JOSE.JWK.from_key(),
+                x509: KittenBlue.JWK.X509.new([x5c: x5c])
+              }
+              |> KittenBlue.JWK.new()
 
             _ ->
               {:error, :invalid_certificate}

@@ -45,5 +45,47 @@ defmodule KittenBlue.JWS.X509Test do
 
       assert {:ok, payload} == JWS.verify(jws, [jwk])
     end
+
+    test "ES256" do
+      key = File.read!("sample_pem/ec-secp256r1-alice.pem") |> X509.PrivateKey.from_pem!()
+
+      root_ca =
+        X509.Certificate.self_signed(
+          key,
+          "/C=JP/ST=Tokyo/L=Shibuya/O=Acme/CN=Root CA",
+          template: :root_ca
+        )
+
+      cert =
+        key
+        |> X509.PublicKey.derive()
+        |> X509.Certificate.new(
+          "/C=JP/ST=Tokyo/L=Shibuya/O=Acme/CN=Cert",
+          root_ca,
+          key
+        )
+
+      x5c = [cert |> X509.Certificate.to_der() |> Base.encode64()]
+
+      alg = "ES256"
+      kid = "es256_202301"
+
+      jwk =
+        %{
+          kid: kid,
+          alg: alg,
+          key: key |> JOSE.JWK.from_key(),
+          x509: JWK.X509.new(x5c: x5c)
+        }
+        |> JWK.new()
+
+      payload = %{"key" => "value"}
+
+      assert {:ok, jws} = JWS.sign(payload, jwk)
+
+      assert jwk = JWK.X509.new_from_jws_token(jws, root_ca)
+
+      assert {:ok, payload} == JWS.verify(jws, [jwk])
+    end
   end
 end

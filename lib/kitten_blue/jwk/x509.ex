@@ -51,6 +51,15 @@ defmodule KittenBlue.JWK.X509 do
           cert_chain = x5c |> Enum.map(&Base.decode64!/1) |> Enum.reverse()
 
           case :public_key.pkix_path_validation(trusted_cert, cert_chain, []) do
+            {:ok, {{_, {:ECPoint, _} = key, key_params}, _}} ->
+              %{
+                kid: kid,
+                alg: alg,
+                key: {key, key_params} |> JOSE.JWK.from_key(),
+                x509: KittenBlue.JWK.X509.new([x5c: x5c])
+              }
+              |> KittenBlue.JWK.new()
+
             {:ok, {{_, key, _}, _}} ->
               %{
                 kid: kid,

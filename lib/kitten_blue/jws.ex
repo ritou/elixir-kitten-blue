@@ -101,7 +101,18 @@ defmodule KittenBlue.JWS do
   def sign(payload, key = %KittenBlue.JWK{}, header) do
     token =
       key.key
-      |> JOSE.JWT.sign(Map.merge(header, %{"alg" => key.alg, "kid" => key.kid}), payload)
+      |> JOSE.JWS.sign(
+        payload |> Jason.encode!(),
+        header |> Map.merge(%{
+          "alg" => key.alg,
+          "kid" => key.kid,
+          "x5c" => if is_nil(key.x509) do
+            nil
+          else
+            key.x509.x5c
+          end
+        })
+      )
       |> JOSE.JWS.compact()
       |> elem(1)
 

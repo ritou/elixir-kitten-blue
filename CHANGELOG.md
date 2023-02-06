@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.0
+
+* Add an optional filed to JWK to handle X.509 parameters (thanks to k-asm)
+
 ## 0.6.0
 
 * Add function to verify JWS token with x5c header using JWK object (thanks to k-asm)

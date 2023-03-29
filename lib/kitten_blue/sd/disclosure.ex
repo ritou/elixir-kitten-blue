@@ -11,15 +11,13 @@ defmodule KittenBlue.SD.Disclosure do
   https://github.com/authlete/sd-jwt
   """
 
-  defstruct [
-    :salt,
-    :claim_name,
-    :claim_value,
-    :json,
-    :disclosure,
-    :default_digest,
-    :hash_code
-  ]
+  defstruct salt: :crypto.strong_rand_bytes(16) |> Base.url_encode64(padding: false),
+            claim_name: "",
+            claim_value: nil,
+            json: "",
+            disclosure: "",
+            default_digest: "",
+            hash_code: 0
 
   @type t :: %__MODULE__{
           salt: String.t(),
@@ -34,32 +32,25 @@ defmodule KittenBlue.SD.Disclosure do
   @doc """
   Constructor with a pair of claim name and claim value. A salt is randomly generated.
   """
-  @spec new(claim_name :: String.t(), claim_value: any(), salt: String.t() | nil) :: t()
-  def new(claim_name, claim_value, salt \\ nil)
-  def new(claim_name, claim_value, salt) when not is_nil(claim_name) and not is_nil(claim_value) do
-    salt = salt || generate_salt()
+  def new(claim_name, claim_value, salt \\ nil) when is_nil(claim_name) or is_nil(claim_value) do
+    raise ArgumentError, "claim_name and claim_value cannot be nil"
+  end
 
+  def new(claim_name, claim_value, salt \\ nil) do
     %__MODULE__{salt: salt, claim_name: claim_name, claim_value: claim_value}
     |> generate_json()
     |> generate_disclosure()
   end
 
-  # TODO: consider the error format
-  def new(_, _, _), do: raise(ArgumentError)
-
   # private
 
-  defp generate_json(
-         disclosure = %__MODULE__{salt: salt, claim_name: claim_name, claim_value: claim_value}
-       ) do
+  defp generate_json(%{salt: salt, claim_name: claim_name, claim_value: claim_value} = disclosure) do
     json = [salt, claim_name, claim_value] |> Jason.encode!()
-    Map.put(disclosure, :json, json)
+    Map.update!(disclosure, :json, &json/0)
   end
 
-  defp generate_disclosure(disclosure = %__MODULE__{json: json}) do
+  defp generate_disclosure(%{json: json} = disclosure) do
     disclosure_byte_array = json |> String.to_charlist() |> :unicode.characters_to_binary()
-    Map.put(disclosure, :disclosure, disclosure_byte_array)
+    Map.update!(disclosure, :disclosure, &disclosure_byte_array/0)
   end
-
-  defp generate_salt(), do: :crypto.strong_rand_bytes(16) |> Base.url_encode64(padding: false)
 end

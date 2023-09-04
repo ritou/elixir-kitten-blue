@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.0
+
+* Suppress warnings on compilation (thanks to k-asm)
+* Update CI versions matrix
+  * Add Latest OTP Version (thanks to k-asm)
+  * Remove Old Elixir Version
+
 ## 0.7.0
 
 * Add an optional filed to JWK to handle X.509 parameters (thanks to k-asm)

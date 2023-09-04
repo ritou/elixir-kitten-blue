@@ -249,11 +249,11 @@ defmodule KittenBlue.JWK do
         Jason.decode!(body) |> __MODULE__.public_jwk_sets_to_list()
 
       {:ok, %{} = res} ->
-        Logger.warn("HTTP Client returned {:ok, #{inspect(res)}}")
+        Logger.warning("HTTP Client returned {:ok, #{inspect(res)}}")
         nil
 
       {:error, %{reason: _} = error} ->
-        Logger.warn("HTTP Client returned {:error, #{inspect(error)}}")
+        Logger.warning("HTTP Client returned {:error, #{inspect(error)}}")
         nil
     end
   end

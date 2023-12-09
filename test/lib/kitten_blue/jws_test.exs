@@ -13,6 +13,7 @@ defmodule KittenBlue.JWSTest do
                    |> JOSE.JWK.from_oct()
                ]
                |> JWK.new()
+
   @hs256_jwk_2 [
                  kid: "hs256_second",
                  alg: "HS256",
@@ -22,6 +23,7 @@ defmodule KittenBlue.JWSTest do
                    |> JOSE.JWK.from_oct()
                ]
                |> JWK.new()
+
   @hs256_jwk_3 [
                  kid: @hs256_jwk_1.kid,
                  alg: @hs256_jwk_1.alg,
@@ -65,6 +67,7 @@ defmodule KittenBlue.JWSTest do
                    |> JOSE.JWK.from_pem()
                ]
                |> JWK.new()
+
   @rs256_jwk_2 [
                  kid: "rs256_second",
                  alg: "RS256",
@@ -133,6 +136,16 @@ defmodule KittenBlue.JWSTest do
       assert {:ok, jws} = JWS.sign(payload, @rs256_jwk_1, header)
       assert {:ok, payload} == JWS.verify(jws, [@rs256_jwk_1, @rs256_jwk_2])
       assert {:ok, payload} == JWS.verify(jws, [@rs256_jwk_1, @rs256_jwk_2], header)
+    end
+
+    test "ignore kid" do
+      payload = %{"foo" => "var"}
+      assert {:ok, jws} = JWS.sign(payload, @rs256_jwk_1, %{}, ignore_kid: true)
+      assert {:ok, %{"alg" => "RS256", "typ" => "JWT"}} == JOSE.JWS.peek_protected(jws) |> Jason.decode()
+
+      assert {:ok, payload} == JWS.verify_without_kid(jws, @rs256_jwk_1)
+      assert {:error, :invalid_jwt_signature} == JWS.verify_without_kid(jws, @rs256_jwk_2)
+      assert {:error, :invalid_jwt_format} == JWS.verify(jws, [@rs256_jwk_1, @rs256_jwk_2])
     end
   end
 

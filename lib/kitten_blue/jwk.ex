@@ -9,13 +9,21 @@ defmodule KittenBlue.JWK do
     :kid,
     :alg,
     :key,
-    :x509 # optional
+    # optional
+    :x509
   ]
 
-  @type t :: %__MODULE__{kid: String.t(), alg: String.t(), key: JOSE.JWK.t(), x509: KittenBlue.JWK.X509.t()}
+  @type t :: %__MODULE__{
+          kid: String.t(),
+          alg: String.t(),
+          key: JOSE.JWK.t(),
+          x509: KittenBlue.JWK.X509.t()
+        }
 
   # Set the default value here to avoid compilation errors where Configuration does not exist.
-  @http_client Application.compile_env(:kitten_blue, __MODULE__, http_client: Scratcher.HttpClient)
+  @http_client Application.compile_env(:kitten_blue, __MODULE__,
+                 http_client: Scratcher.HttpClient
+               )
                |> Keyword.fetch!(:http_client)
 
   # NOTE: from_compact/to_conpact does not support Poly1305

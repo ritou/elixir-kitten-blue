@@ -56,7 +56,7 @@ defmodule KittenBlue.JWK.X509 do
                 kid: kid,
                 alg: alg,
                 key: {key, key_params} |> JOSE.JWK.from_key(),
-                x509: KittenBlue.JWK.X509.new([x5c: x5c])
+                x509: KittenBlue.JWK.X509.new(x5c: x5c)
               }
               |> KittenBlue.JWK.new()
 
@@ -65,13 +65,14 @@ defmodule KittenBlue.JWK.X509 do
                 kid: kid,
                 alg: alg,
                 key: key |> JOSE.JWK.from_key(),
-                x509: KittenBlue.JWK.X509.new([x5c: x5c])
+                x509: KittenBlue.JWK.X509.new(x5c: x5c)
               }
               |> KittenBlue.JWK.new()
 
             _ ->
               {:error, :invalid_certificate}
           end
+
         _ ->
           {:error, :invalid_jws_header}
       end

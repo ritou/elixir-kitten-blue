@@ -54,7 +54,7 @@ defmodule KittenBlue.JWS.DPoP do
          {:ok, header} <- JOSE.JWS.peek_protected(jwt) |> Jason.decode(),
          {:ok, key} <- validate_header(header),
          {:ok, _} <- JWS.verify_without_kid(jwt, key) do
-      {:ok, payload}
+      {:ok, payload, header}
     end
   end
 

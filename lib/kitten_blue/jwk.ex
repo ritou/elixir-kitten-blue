@@ -293,4 +293,12 @@ defmodule KittenBlue.JWK do
       Enum.find(keys, fn kb_jwk -> kb_jwk.kid == kid end)
     end
   end
+
+  @doc """
+  Function to return JWK Thumbprint
+  """
+  @spec to_thumbprint(jwk :: t()) :: String.t()
+  def to_thumbprint(jwk) do
+    JOSE.JWK.thumbprint(:sha256, jwk.key)
+  end
 end

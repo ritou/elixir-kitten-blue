@@ -9,7 +9,7 @@ defmodule KittenBlue.JWS.DPoPTest do
     jwt =
       "eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6IkVDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCRnMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JEQSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIjoiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwiaWF0IjoxNTYyMjYyNjE2fQ.2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg4PtFLbdLXiOSsX0x7NVY-FNyJK70nfbV37xRZT3Lg"
 
-    assert {:ok, payload, header} = DPoP.verify_dpop_proof_jwt(jwt)
+    assert {:ok, payload, header, _} = DPoP.verify_dpop_proof_jwt(jwt)
 
     assert %{
              "htm" => "POST",
@@ -33,7 +33,7 @@ defmodule KittenBlue.JWS.DPoPTest do
     jwt =
       "eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6IkVDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCRnMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JEQSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiJlMWozVl9iS2ljOC1MQUVCIiwiaHRtIjoiR0VUIiwiaHR1IjoiaHR0cHM6Ly9yZXNvdXJjZS5leGFtcGxlLm9yZy9wcm90ZWN0ZWRyZXNvdXJjZSIsImlhdCI6MTU2MjI2MjYxOCwiYXRoIjoiZlVIeU8ycjJaM0RaNTNFc05yV0JiMHhXWG9hTnk1OUlpS0NBcWtzbVFFbyJ9.2oW9RP35yRqzhrtNP86L-Ey71EOptxRimPPToA1plemAgR6pxHF8y6-yqyVnmcw6Fy1dqd-jfxSYoMxhAJpLjA"
 
-    assert {:ok, payload, header} = DPoP.verify_dpop_proof_jwt(jwt)
+    assert {:ok, payload, header, _} = DPoP.verify_dpop_proof_jwt(jwt)
 
     assert %{
              "htm" => "GET",
@@ -111,7 +111,9 @@ defmodule KittenBlue.JWS.DPoPTest do
 
     assert {:ok, jwt} = DPoP.issue_dpop_proof_jwt(payload, jwk)
 
-    assert {:ok, payload, header} = DPoP.verify_dpop_proof_jwt(jwt)
+    assert {:ok, payload, header, decode_jwk} = DPoP.verify_dpop_proof_jwt(jwt)
+
+    assert JWK.to_thumbprint(jwk) == JWK.to_thumbprint(decode_jwk)
 
     assert %{
              "htm" => "POST",

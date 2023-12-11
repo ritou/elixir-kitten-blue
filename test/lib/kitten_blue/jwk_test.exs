@@ -361,7 +361,7 @@ defmodule KittenBlue.JWKTest do
       "kid" => "test"
     }
 
-    jwk = JWK.from_public_jwk_set(es_pubkey) |> IO.inspect()
+    jwk = JWK.from_public_jwk_set(es_pubkey)
     assert "0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I" = JWK.to_thumbprint(jwk)
   end
 

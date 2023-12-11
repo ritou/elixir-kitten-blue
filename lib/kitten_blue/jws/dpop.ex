@@ -31,12 +31,12 @@ defmodule KittenBlue.JWS.DPoP do
 
   ref. https://datatracker.ietf.org/doc/html/rfc9449#section-4.2
   """
-  @spec create_dpop_proof_jwt(payload :: map, jwk :: JWK.t()) ::
+  @spec issue_dpop_proof_jwt(payload :: map, jwk :: JWK.t()) ::
           {:ok, jwt :: String.t()} | {:error, term}
-  def create_dpop_proof_jwt(payload, jwk = %JWK{}) do
+  def issue_dpop_proof_jwt(payload, jwk = %JWK{}) do
     with :ok <- validate_payload(payload),
          {:ok, header} <- create_header(jwk),
-         {:ok, jwt} <- JWS.sign(payload, jwk, header) do
+         {:ok, jwt} <- JWS.sign(payload, jwk, header, ignore_kid: true) do
       {:ok, jwt}
     end
   end

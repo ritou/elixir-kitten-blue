@@ -337,5 +337,33 @@ defmodule KittenBlue.JWKTest do
     refute JWK.find_key_to_issue(config)
   end
 
+  test "to_thumbprint" do
+    # ref. https://datatracker.ietf.org/doc/html/rfc7638#section-3.1
+    rsa_pubkey = %{
+      "kty" => "RSA",
+      "n" =>
+        "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw",
+      "e" => "AQAB",
+      "alg" => "RS256",
+      "kid" => "2011-04-29"
+    }
+
+    jwk = JWK.from_public_jwk_set(rsa_pubkey)
+    assert "NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs" = JWK.to_thumbprint(jwk)
+
+    # ref. https://datatracker.ietf.org/doc/html/rfc9449#section-6.1
+    es_pubkey = %{
+      "alg" => "ES256",
+      "crv" => "P-256",
+      "kty" => "EC",
+      "x" => "l8tFrhx-34tV3hRICRDY9zCkDlpBhF42UQUfWVAWBFs",
+      "y" => "9VE4jf_Ok_o64zbTTlcuNJajHmt6v9TDVrU0CdvGRDA",
+      "kid" => "test"
+    }
+
+    jwk = JWK.from_public_jwk_set(es_pubkey)
+    assert "0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I" = JWK.to_thumbprint(jwk)
+  end
+
   # TODO: test for fetch!()
 end

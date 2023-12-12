@@ -26,14 +26,37 @@ defmodule KittenBlue.JWS do
     with {:ok, jwk} <- validate_jwt_header(token, keys),
          {:ok, payload} <- validate_jwt_signature(token, jwk, required_header) do
       {:ok, payload}
-    else
-      _ = e -> e
     end
   end
 
-  @spec validate_jwt_header(token :: String.t(), keys :: List.t()) ::
+  @spec verify_without_kid(token :: String.t(), key :: KittenBlue.JWK.t(), required_header :: map) ::
+          {:error, :invalid_jwt_format}
+          | {:error, :invalid_jwt_signature}
+          | {:error, :invalid_jwt_header}
+          | {:ok, payload :: map}
+  def verify_without_kid(token, key = %KittenBlue.JWK{}, required_header \\ nil)
+      when is_binary(token) do
+    with {:ok, nil} <- validate_jwt_header(token, nil),
+         {:ok, payload} <- validate_jwt_signature(token, key, required_header) do
+      {:ok, payload}
+    end
+  end
+
+  @spec validate_jwt_header(token :: String.t(), keys :: List.t() | nil) ::
           {:error, :invalid_jwt_format}
           | {:ok, jwk :: KittenBlue.JWK.t()}
+  defp validate_jwt_header(token, nil) do
+    try do
+      JOSE.JWT.peek_protected(token)
+      |> case do
+        %JOSE.JWS{fields: %{}} -> {:ok, nil}
+        _ -> {:error, :invalid_jwt_format}
+      end
+    rescue
+      _ -> {:error, :invalid_jwt_format}
+    end
+  end
+
   defp validate_jwt_header(token, keys) do
     try do
       JOSE.JWT.peek_protected(token)
@@ -94,20 +117,21 @@ defmodule KittenBlue.JWS do
   {:ok, token} = KittenBlue.JWS.sign(payload, kb_jwk, %{"typ" => "my_jwt_usage"})
   ```
   """
-  @spec sign(payload :: map, key :: KittenBlue.JWK.t(), header :: map) ::
+  @spec sign(payload :: map, key :: KittenBlue.JWK.t(), header :: map, opts :: Keyword.t()) ::
           {:ok, String.t()} | {:error, :invalid_key}
-  def sign(payload, key, header \\ %{})
+  def sign(payload, key, header \\ %{}, opts \\ [])
 
-  def sign(payload, %KittenBlue.JWK{x509: %KittenBlue.JWK.X509{} = x509} = key, header) do
+  def sign(payload, %KittenBlue.JWK{x509: %KittenBlue.JWK.X509{} = x509} = key, header, opts) do
+    additional_header_params =
+      if opts[:ignore_kid],
+        do: %{"alg" => key.alg, "x5c" => x509.x5c},
+        else: %{"alg" => key.alg, "kid" => key.kid, "x5c" => x509.x5c}
+
     token =
       key.key
       |> JOSE.JWS.sign(
         payload |> Jason.encode!(),
-        header |> Map.merge(%{
-          "alg" => key.alg,
-          "kid" => key.kid,
-          "x5c" => x509.x5c
-        })
+        header |> Map.merge(additional_header_params)
       )
       |> JOSE.JWS.compact()
       |> elem(1)
@@ -115,17 +139,20 @@ defmodule KittenBlue.JWS do
     {:ok, token}
   end
 
-  def sign(payload, %KittenBlue.JWK{} = key, header) do
+  def sign(payload, %KittenBlue.JWK{} = key, header, opts) do
+    additional_header_params =
+      if opts[:ignore_kid], do: %{"alg" => key.alg}, else: %{"alg" => key.alg, "kid" => key.kid}
+
     token =
       key.key
-      |> JOSE.JWT.sign(Map.merge(header, %{"alg" => key.alg, "kid" => key.kid}), payload)
+      |> JOSE.JWT.sign(Map.merge(header, additional_header_params), payload)
       |> JOSE.JWS.compact()
       |> elem(1)
 
     {:ok, token}
   end
 
-  def sign(_, _, _) do
+  def sign(_, _, _, _) do
     {:error, :invalid_key}
   end
 end

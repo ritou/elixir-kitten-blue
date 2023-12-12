@@ -35,6 +35,7 @@ defmodule KittenBlue.Mixfile do
       {:jose, "~> 1.11"},
       {:jason, "~> 1.2", optional: true},
       {:x509, "~> 0.8"},
+      {:uuid, "~> 1.1"},
 
       # HTTP Client
       {:scratcher, "~> 0.1"},

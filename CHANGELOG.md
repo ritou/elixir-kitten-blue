@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.0
+
+* Add helper module for OAuth DPoP
+
 ## 0.8.0
 
 * Suppress warnings on compilation (thanks to k-asm)

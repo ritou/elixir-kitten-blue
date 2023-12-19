@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.1
+
+* Add error handling for DPoP module
+
 ## 0.9.0
 
 * Add helper module for OAuth DPoP

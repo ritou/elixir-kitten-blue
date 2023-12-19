@@ -100,6 +100,8 @@ defmodule KittenBlue.JWS.DPoPTest do
   end
 
   test "verify" do
+    assert {:error, :invalid_dpop_proof_jwt} = DPoP.verify_dpop_proof_jwt("invalid")
+
     assert {:ok, jwk = %JWK{}} = DPoP.generate_private_key()
 
     payload = %{

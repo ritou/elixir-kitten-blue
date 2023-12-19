@@ -49,12 +49,16 @@ defmodule KittenBlue.JWS.DPoP do
   @spec verify_dpop_proof_jwt(jwt :: String.t()) ::
           {:ok, header :: map, payload :: map, jwk :: JWK.t()} | {:error, term}
   def verify_dpop_proof_jwt(jwt) do
-    with {:ok, payload} <- JOSE.JWS.peek_payload(jwt) |> Jason.decode(),
-         :ok <- validate_payload(payload),
-         {:ok, header} <- JOSE.JWS.peek_protected(jwt) |> Jason.decode(),
-         {:ok, jwk} <- validate_header(header),
-         {:ok, _} <- JWS.verify_without_kid(jwt, jwk) do
-      {:ok, payload, header, jwk}
+    try do
+      with {:ok, payload} <- JOSE.JWS.peek_payload(jwt) |> Jason.decode(),
+           :ok <- validate_payload(payload),
+           {:ok, header} <- JOSE.JWS.peek_protected(jwt) |> Jason.decode(),
+           {:ok, jwk} <- validate_header(header),
+           {:ok, _} <- JWS.verify_without_kid(jwt, jwk) do
+        {:ok, payload, header, jwk}
+      end
+    rescue
+      _ -> {:error, :invalid_dpop_proof_jwt}
     end
   end
 

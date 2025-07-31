@@ -220,24 +220,26 @@ defmodule KittenBlue.JWKTest do
     # ES256 with pem
     es_compact = JWK.to_compact(jwk_es256)
     assert [kid_es256, alg_es256, key_es256 |> JOSE.JWK.to_pem() |> elem(1)] == es_compact
-    assert jwk_es256 == JWK.from_compact(es_compact)
+    # PEM round trip changes internal key format, so compare the converted version
+    expected_jwk = %{jwk_es256 | key: KittenBlue.JWK.convert_key_version_jose(jwk_es256.key)}
+    assert expected_jwk == JWK.from_compact(es_compact)
     es_compact_list = JWK.list_to_compact([jwk_es256])
     assert [[kid_es256, alg_es256, key_es256 |> JOSE.JWK.to_pem() |> elem(1)]] == es_compact_list
-    assert [jwk_es256] == JWK.compact_to_list(es_compact_list)
+    assert [expected_jwk] == JWK.compact_to_list(es_compact_list)
 
     # ES256 with map
     es_compact_with_map = JWK.to_compact(jwk_es256, use_map: true)
 
-    assert [kid_es256, alg_es256, key_es256 |> JOSE.JWK.to_map() |> elem(1)] ==
+    assert [kid_es256, alg_es256, key_es256 |> KittenBlue.JWK.convert_key_version_jose() |> JOSE.JWK.to_map() |> elem(1)] ==
              es_compact_with_map
 
-    assert jwk_es256 == JWK.from_compact(es_compact_with_map)
+    assert expected_jwk == JWK.from_compact(es_compact_with_map)
     es_compact_list_with_map = JWK.list_to_compact([jwk_es256], use_map: true)
 
-    assert [[kid_es256, alg_es256, key_es256 |> JOSE.JWK.to_map() |> elem(1)]] ==
+    assert [[kid_es256, alg_es256, key_es256 |> KittenBlue.JWK.convert_key_version_jose() |> JOSE.JWK.to_map() |> elem(1)]] ==
              es_compact_list_with_map
 
-    assert [jwk_es256] == JWK.compact_to_list(es_compact_list_with_map)
+    assert [expected_jwk] == JWK.compact_to_list(es_compact_list_with_map)
   end
 
   test "Ed25519" do

@@ -102,6 +102,7 @@ defmodule KittenBlue.JWK do
   @spec to_public_jwk_set(jwk :: t) :: map | nil
   def to_public_jwk_set(jwk = %__MODULE__{}) do
     jwk.key
+    |> do_convert_key_version_jose()
     |> JOSE.JWK.to_public()
     |> JOSE.JWK.to_map()
     |> elem(1)
@@ -144,7 +145,7 @@ defmodule KittenBlue.JWK do
     try do
       with alg when alg != nil <- jwk_map["alg"],
            kid when kid != nil <- jwk_map["kid"],
-           key = %JOSE.JWK{} <- jwk_map |> JOSE.JWK.from_map() do
+           key = %JOSE.JWK{} <- jwk_map |> JOSE.JWK.from_map() |> do_convert_key_version_jose() do
         new(kid: kid, alg: alg, key: key)
       else
         _ -> nil
@@ -183,7 +184,7 @@ defmodule KittenBlue.JWK do
   def to_compact(jwk, opts \\ []) do
     case {jwk.alg, opts[:use_map]} do
       {_, true} ->
-        [jwk.kid, jwk.alg, jwk.key |> JOSE.JWK.to_map() |> elem(1)]
+        [jwk.kid, jwk.alg, jwk.key |> do_convert_key_version_jose() |> JOSE.JWK.to_map() |> elem(1)]
 
       {alg, nil} when alg in @algs_for_oct ->
         [
@@ -225,13 +226,13 @@ defmodule KittenBlue.JWK do
   def from_compact(_jwk_compact = [kid, alg, key]) do
     cond do
       is_map(key) ->
-        [kid, alg, key |> JOSE.JWK.from_map()] |> new()
+        [kid, alg, key |> JOSE.JWK.from_map() |> do_convert_key_version_jose()] |> new()
 
       alg in @algs_for_oct ->
-        [kid, alg, key |> Base.decode64!(padding: false) |> JOSE.JWK.from_oct()] |> new()
+        [kid, alg, key |> Base.decode64!(padding: false) |> JOSE.JWK.from_oct() |> do_convert_key_version_jose()] |> new()
 
       alg in @algs_for_pem ->
-        [kid, alg, key |> JOSE.JWK.from_pem()] |> new()
+        [kid, alg, key |> JOSE.JWK.from_pem() |> do_convert_key_version_jose()] |> new()
 
       true ->
         nil
@@ -301,4 +302,26 @@ defmodule KittenBlue.JWK do
   def to_thumbprint(jwk) do
     JOSE.JWK.thumbprint(:sha256, jwk.key)
   end
+
+  @doc """
+  JWK conversion function for OTP 28 compatibility (public for testing)
+  """
+  def convert_key_version_jose(key), do: do_convert_key_version_jose(key)
+
+  # Erlang/OTP 28 generates JWK in this format, but JOSE 1.11.10 doesn't support it yet, so we convert it
+  # https://github.com/potatosalad/erlang-jose/issues/179
+  defp do_convert_key_version_jose(
+         %JOSE.JWK{
+           kty:
+             {:jose_jwk_kty_ec,
+              {:ECPrivateKey, :ecPrivkeyVer1, private_key, params, public_key, attributes}}
+         } = key
+       ),
+       do: %{
+         key
+         | kty:
+             {:jose_jwk_kty_ec, {:ECPrivateKey, 1, private_key, params, public_key, attributes}}
+       }
+
+  defp do_convert_key_version_jose(key), do: key
 end

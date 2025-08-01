@@ -19,9 +19,10 @@ defmodule KittenBlue.JWS.DPoP do
   @spec generate_private_key(opts :: Keyword.t()) :: {:ok, jwk :: JWK} | {:error, term}
   def generate_private_key(opts \\ []) do
     with alg <- Keyword.get(opts, :alg, @default_alg),
-         key = %JOSE.JWK{} <- JOSE.JWS.generate_key(%{"alg" => alg}),
+         raw_key = %JOSE.JWK{} <- generate_jwk_for_alg(alg),
+         converted_key <- JWK.convert_key_version_jose(raw_key),
          kid <- Keyword.get(opts, :kid, UUID.uuid4()),
-         jwk <- JWK.new([kid, alg, key]) do
+         jwk <- JWK.new([kid, alg, converted_key]) do
       {:ok, jwk}
     end
   end
@@ -83,4 +84,27 @@ defmodule KittenBlue.JWS.DPoP do
   end
 
   defp validate_header(_), do: {:error, :invalid_header}
+
+  defp generate_jwk_for_alg(alg) do
+    case alg do
+      # Elliptic Curve algorithms
+      "ES256" -> JOSE.JWK.generate_key({:ec, :secp256r1})
+      "ES384" -> JOSE.JWK.generate_key({:ec, :secp384r1})
+      "ES512" -> JOSE.JWK.generate_key({:ec, :secp521r1})
+
+      # RSA algorithms
+      "RS256" -> JOSE.JWK.generate_key({:rsa, 2048})
+      "RS384" -> JOSE.JWK.generate_key({:rsa, 2048})
+      "RS512" -> JOSE.JWK.generate_key({:rsa, 2048})
+      "PS256" -> JOSE.JWK.generate_key({:rsa, 2048})
+      "PS384" -> JOSE.JWK.generate_key({:rsa, 2048})
+      "PS512" -> JOSE.JWK.generate_key({:rsa, 2048})
+
+      # EdDSA algorithms
+      "EdDSA" -> JOSE.JWK.generate_key({:okp, :Ed25519})
+
+      # Unsupported algorithm
+      _ -> {:error, :unsupported_algorithm}
+    end
+  end
 end

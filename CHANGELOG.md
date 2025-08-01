@@ -2,6 +2,10 @@
 
 ## 0.9.1
 
+* Introduces compatibility updates for Erlang/OTP 28 (thanks to k-asm)
+
+## 0.9.1
+
 * Add error handling for DPoP module
 
 ## 0.9.0
